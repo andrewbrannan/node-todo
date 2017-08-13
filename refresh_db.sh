@@ -11,7 +11,7 @@ createdb todo &> /dev/null
 psql -d $DB_NAME -f $DB_FILE &> /dev/null
 
 printf "Checking db created..."
-if [ "$( psql todo -tAc "SELECT 1 FROM pg_database WHERE DATNAME='todo'" )" = '1' ]
+if [ "$( psql $DB_NAME -tAc "SELECT 1 FROM pg_database WHERE DATNAME='$DB_NAME'" )" = '1' ]
 then
   echo "SUCCESS"
 else

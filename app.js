@@ -93,6 +93,7 @@ function deleteTask(idToDelete){
           process.exit(1);
         };
         //After the row has been deleted, recalcualte the id column so it's continuous
+        //Would be good to avoid multiple queries on this, I think a postgres transaction would be the right tool
         pool.query(alterSequenceQueryText,[],function(err,res){
           if(err){
             console.log(err);

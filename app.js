@@ -12,7 +12,6 @@ const setCompletedQueryText = "UPDATE list SET is_completed='true' WHERE id=$1";
 const deleteQueryText = "DELETE FROM list WHERE id=$1";
 const alterSequenceQueryText = "ALTER SEQUENCE list_id_seq RESTART WITH 1";
 const updateIdsQueryText = "UPDATE list SET id=nextval('list_id_seq')";
-const countRowsQueryText = "SELECT COUNT(*) FROM list";
 
 function printHelp(){
   console.log("~~~~~~~~~~TODO HELP~~~~~~~~~~~");
@@ -78,35 +77,26 @@ function deleteTask(idToDelete){
     console.log("Must supply a task id to delete.");
     process.exit(0);
   }
-  //Doing a query first to check the number of rows to be sure we aren't referencing a non-existant row
-  //I figure there's a better way to do this, maybe checking the result of the UPDATE query itself
-  pool.query(countRowsQueryText,[],function(err,res){
+  pool.query(deleteQueryText,[idToDelete],function(err,res){
     if(err){
       console.log(err);
       process.exit(1);
     };
-    //Delete the row as long as it's in the table
-    if(res.rows[0].count >= idToDelete){
-      pool.query(deleteQueryText,[idToDelete],function(err,res){
+    if(res.rowCount != 0){
+      //After the row has been deleted, recalcualte the id column so it's continuous
+      //Would be good to avoid multiple queries on this, I think a postgres transaction would be the right tool
+      pool.query(alterSequenceQueryText,[],function(err,res){
         if(err){
           console.log(err);
           process.exit(1);
         };
-        //After the row has been deleted, recalcualte the id column so it's continuous
-        //Would be good to avoid multiple queries on this, I think a postgres transaction would be the right tool
-        pool.query(alterSequenceQueryText,[],function(err,res){
+        pool.query(updateIdsQueryText,[],function(err,res){
           if(err){
             console.log(err);
             process.exit(1);
           };
-          pool.query(updateIdsQueryText,[],function(err,res){
-            if(err){
-              console.log(err);
-              process.exit(1);
-            };
-            console.log("Deleted task " + idToDelete);
-            process.exit(0);
-          });
+          console.log("Deleted task " + idToDelete);
+          process.exit(0);
         });
       });
     }
@@ -123,27 +113,18 @@ function completeTask(idToComplete){
     console.log("Must supply a task id to complete.");
     process.exit(0);
   }
-  //Doing a query first to check the number of rows to be sure we aren't referencing a non-existant row
-  //I figure there's a better way to do this, maybe checking the result of the UPDATE query itself
-  pool.query(countRowsQueryText,[],function(err,res){
+  pool.query(setCompletedQueryText,[idToComplete],function(err,res){
     if(err){
       console.log(err);
       process.exit(1);
     };
-    if(res.rows[0].count >= idToComplete){
-      pool.query(setCompletedQueryText,[idToComplete],function(err,res){
-        if(err){
-          console.log(err);
-          process.exit(1);
-        };
-        console.log("Set task " + idToComplete + " as completed.");
-        process.exit(0);
-      });
+    if(res.rowCount != 0){
+      console.log("Set task " + idToComplete + " as completed.");
     }
     else{
       console.log("No task with id " + idToComplete + " exists, try again.");
-      process.exit(0);
     }
+    process.exit(0);
   });
 }
 

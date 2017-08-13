@@ -3,7 +3,9 @@
 var argv = require('minimist')(process.argv.slice(2));
 const { Pool } = require('pg'); // What's with the { } around Pool?
 
-const pool = new Pool();
+const pool = new Pool({
+  database: "todo",
+});
 
 //SQL Queries - Is there a better way to do this?
 const addQueryText = "INSERT INTO list(task,is_completed) VALUES($1,'0')";
@@ -82,6 +84,7 @@ function deleteTask(idToDelete){
       console.log(err);
       process.exit(1);
     };
+    //If we haven't modified the table, then don't bother rearranging it
     if(res.rowCount != 0){
       //After the row has been deleted, recalcualte the id column so it's continuous
       //Would be good to avoid multiple queries on this, I think a postgres transaction would be the right tool

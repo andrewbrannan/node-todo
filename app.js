@@ -38,6 +38,103 @@ function printRow(row){
   process.stdout.write("]     " + row.task + "\r\n");
 }
 
+function addTask(task){
+  if(task == null || task == ""){
+    console.log("Must supply a task name to add.");
+    process.exit(0);
+  }
+  pool.query(addQueryText,[task],function(err,res){
+    if(err){
+      console.log(err);
+      process.exit(1)
+    }
+    else{
+      console.log("Added todo: " + task)
+      process.exit(0)
+    }
+  });
+}
+
+function listTasks(){
+  pool.query(listQueryText,[],function(err,res){
+    if(err){
+      console.log(err);
+      process.exit(1);
+    }
+    console.log("  id | status | task")
+    res.rows.forEach(function(row){
+      printRow(row);
+    });
+    process.exit(0);
+  });
+}
+
+function deleteTask(idToDelete){
+  if(idToDelete == null){
+    console.log("Must supply a task id to delete.");
+    process.exit(0);
+  }
+  pool.query(countRowsQueryText,[],function(err,res){
+    if(err){
+      console.log(err);
+      process.exit(1);
+    };
+    if(res.rows[0].count >= idToDelete){
+      pool.query(deleteQueryText,[idToDelete],function(err,res){
+        if(err){
+          console.log(err);
+          process.exit(1);
+        };
+        pool.query(alterSequenceQueryText,[],function(err,res){
+          if(err){
+            console.log(err);
+            process.exit(1);
+          };
+          pool.query(updateIdsQueryText,[],function(err,res){
+            if(err){
+              console.log(err);
+              process.exit(1);
+            };
+            console.log("Deleted task " + idToDelete);
+            process.exit(0);
+          });
+        });
+      });
+    }
+    else{
+      console.log("No task with id " + idToDelete + " exists, try again.");
+      process.exit(0);
+    }
+  });
+}
+
+function completeTask(idToComplete){
+  if(idToComplete == null){
+    console.log("Must supply a task id to complete.");
+    process.exit(0);
+  }
+  pool.query(countRowsQueryText,[],function(err,res){
+    if(err){
+      console.log(err);
+      process.exit(1);
+    };
+    if(res.rows[0].count >= idToComplete){
+      pool.query(setCompletedQueryText,[idToComplete],function(err,res){
+        if(err){
+          console.log(err);
+          process.exit(1);
+        };
+        console.log("Set task " + idToComplete + " as completed.");
+        process.exit(0);
+      });
+    }
+    else{
+      console.log("No task with id " + idToComplete + " exists, try again.");
+      process.exit(0);
+    }
+  });
+}
+
 if(argv._.length == 0){
   printHelp();
   process.exit(0);
@@ -46,104 +143,28 @@ if(argv._.length == 0){
 switch(argv._[0]){
     case "add":
       const task = argv._[1];
-      if(task == null || task == ""){
-        console.log("Must supply a task name to add.");
-        process.exit(0);
-      }
-      pool.query(addQueryText,[task],function(err,res){
-        if(err){
-          console.log(err);
-          process.exit(1)
-        }
-        else{
-          console.log("Added todo: " + task)
-          process.exit(0)
-        }
-      });
+      addTask(task);
       break;
+
     case "list":
-      pool.query(listQueryText,[],function(err,res){
-        if(err){
-          console.log(err);
-          process.exit(1);
-        }
-        console.log("  id | status | task")
-        res.rows.forEach(function(row){
-          printRow(row);
-        });
-        process.exit(0);
-      });
+      listTasks();
       break;
+
     case "delete":
       const idToDelete = argv._[1];
-      if(idToDelete == null){
-        console.log("Must supply a task id to delete.");
-        process.exit(0);
-      }
-      pool.query(countRowsQueryText,[],function(err,res){
-        if(err){
-          console.log(err);
-          process.exit(1);
-        };
-        if(res.rows[0].count > idToDelete){
-          pool.query(deleteQueryText,[idToDelete],function(err,res){
-            if(err){
-              console.log(err);
-              process.exit(1);
-            };
-            pool.query(alterSequenceQueryText,[],function(err,res){
-              if(err){
-                console.log(err);
-                process.exit(1);
-              };
-              pool.query(updateIdsQueryText,[],function(err,res){
-                if(err){
-                  console.log(err);
-                  process.exit(1);
-                };
-                console.log("Deleted task " + idToDelete);
-                process.exit(0);
-              });
-            });
-          });
-        }
-        else{
-          console.log("No task with id " + idToDelete + " exists, try again.");
-          process.exit(0);
-        }
-      });
+      deleteTask(idToDelete);
       break;
+
     case "complete":
       const idToComplete = argv._[1];
-      if(idToComplete == null){
-        console.log("Must supply a task id to complete.");
-        process.exit(0);
-      }
-      pool.query(countRowsQueryText,[],function(err,res){
-        if(err){
-          console.log(err);
-          process.exit(1);
-        };
-        if(res.rows[0].count > idToComplete){
-          pool.query(setCompletedQueryText,[idToComplete],function(err,res){
-            if(err){
-              console.log(err);
-              process.exit(1);
-            };
-            console.log("Set task " + idToComplete + " as completed.");
-            process.exit(0);
-          });
-        }
-        else{
-          console.log("No task with id " + idToComplete + " exists, try again.");
-          process.exit(0);
-        }
-      });
+      completeTask(idToComplete);
+      break;
 
+    case "help":
+      printHelp();
       break;
 
     default:
       console.log("Invalid Argument.")
       printHelp();
-
 }

@@ -91,13 +91,5 @@ SELECT pg_catalog.setval('list_id_seq', 0, true);
 
 
 --
--- Name: list list_pkey; Type: CONSTRAINT; Schema: public; Owner: andrewbrannan
---
-
-ALTER TABLE ONLY list
-    ADD CONSTRAINT list_pkey PRIMARY KEY (id);
-
-
---
 -- PostgreSQL database dump complete
 --

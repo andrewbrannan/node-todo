@@ -41,7 +41,7 @@ SET default_with_oids = false;
 CREATE TABLE list (
     id integer NOT NULL,
     task character varying(256),
-    done boolean
+    is_completed boolean
 );
 
 
@@ -79,7 +79,7 @@ ALTER TABLE ONLY list ALTER COLUMN id SET DEFAULT nextval('list_id_seq'::regclas
 -- Data for Name: list; Type: TABLE DATA; Schema: public; Owner: andrewbrannan
 --
 
-COPY list (id, task, done) FROM stdin;
+COPY list (id, task, is_completed) FROM stdin;
 \.
 
 

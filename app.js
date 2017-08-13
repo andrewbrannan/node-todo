@@ -1,13 +1,18 @@
 "use strict";
 
 var argv = require('minimist')(process.argv.slice(2));
-const { Pool } = require('pg'); // What's with the { } around Client?
+const { Pool } = require('pg'); // What's with the { } around Pool?
 
 const pool = new Pool();
 
 //SQL Queries - Is there a better way to do this?
-const addQueryText = "INSERT INTO list(task,done) VALUES($1,'0')"
-const listQueryText = "SELECT * FROM list ORDER BY id asc"
+const addQueryText = "INSERT INTO list(task,is_completed) VALUES($1,'0')";
+const listQueryText = "SELECT * FROM list ORDER BY id asc";
+const setCompletedQueryText = "UPDATE list SET is_completed='true' WHERE id=$1";
+const deleteQueryText = "DELETE FROM list WHERE id=$1";
+const alterSequenceQueryText = "ALTER SEQUENCE list_id_seq RESTART";
+const updateIdsQueryText = "UPDATE list SET id=nextval('list_id_seq')";
+
 
 function printHelp(){
   console.log("~~~~~~~~~~TODO HELP~~~~~~~~~~~");
@@ -18,6 +23,17 @@ function printHelp(){
   console.log("delete <int>:   Delete given task from list");
 }
 
+function printRow(row){
+  process.stdout.write("   " + row.id + "    [");
+  if(row.is_completed){
+    process.stdout.write("X");
+  }
+  else{
+    process.stdout.write(" ");
+  }
+  process.stdout.write("]     " + row.task + "\r\n");
+}
+
 if(argv._.length == 0){
   printHelp();
   process.exit(0);
@@ -25,14 +41,14 @@ if(argv._.length == 0){
 
 switch(argv._[0]){
     case "add":
-      const taskText = argv._[1];
-      pool.query(addQueryText,[taskText],function(err,res){
+      const task = argv._[1];
+      pool.query(addQueryText,[task],function(err,res){
         if(err){
           console.log(err);
           process.exit(1)
         }
         else{
-          console.log("Added todo: " + taskText)
+          console.log("Added todo: " + task)
           process.exit(0)
         }
       });
@@ -41,16 +57,48 @@ switch(argv._[0]){
       pool.query(listQueryText,[],function(err,res){
         if(err){
           console.log(err);
+          process.exit(1);
         }
-        res.rows.forEach()
-      })
+        console.log("  id | status | task")
+        res.rows.forEach(function(row){
+          printRow(row);
+        });
+        process.exit(0);
+      });
       break;
     case "delete":
+      const idToDelete = argv._[1];
+      pool.query(deleteQueryText,[idToDelete],function(err,res){
+        if(err){
+          console.log(err);
+          process.exit(1);
+        };
+        pool.query(alterSequenceQueryText,[],function(err,res){
+          if(err){
+            console.log(err);
+            process.exit(1);
+          };
+          pool.query(updateIdsQueryText,[],function(err,res){
+            if(err){
+              console.log(err);
+              process.exit(1);
+            };
+            console.log("Deleted task " + idToDelete);
+            process.exit(0);
+          });
+        });
+      });
       break;
     case "complete":
-      break;
-    case "":
-      console.log("NOTHING");
+      const idToComplete = argv._[1];
+      pool.query(setCompletedQueryText,[idToComplete],function(err,res){
+        if(err){
+          console.log(err);
+          process.exit(1);
+        };
+        console.log("Set task " + idToComplete + " as completed.");
+        process.exit(0);
+      });
       break;
 
     default:

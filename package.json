@@ -1,0 +1,14 @@
+{
+  "name": "todo",
+  "version": "1.0.0",
+  "description": "todo list app",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "andrew",
+  "license": "ISC",
+  "dependencies": {
+    "minimalist": "^1.0.0"
+  }
+}

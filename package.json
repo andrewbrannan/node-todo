@@ -9,6 +9,6 @@
   "author": "andrew",
   "license": "ISC",
   "dependencies": {
-    "minimalist": "^1.0.0"
+    "minimist": "^1.2.0"
   }
 }

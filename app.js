@@ -23,6 +23,7 @@ function printHelp(){
   console.log("delete <int>:   Delete given task from list");
 }
 
+//Print a single task row
 function printRow(row){
   process.stdout.write("   " + row.id + " ");
   for(var i = 0; i < 4-row.id.toString().length; i++){
@@ -38,6 +39,7 @@ function printRow(row){
   process.stdout.write("]     " + row.task + "\r\n");
 }
 
+//Adds a task to the database
 function addTask(task){
   if(task == null || task == ""){
     console.log("Must supply a task name to add.");
@@ -55,6 +57,7 @@ function addTask(task){
   });
 }
 
+//Prints a list of all tasks in the database
 function listTasks(){
   pool.query(listQueryText,[],function(err,res){
     if(err){
@@ -69,22 +72,27 @@ function listTasks(){
   });
 }
 
+//Deletes a task from the database
 function deleteTask(idToDelete){
   if(idToDelete == null){
     console.log("Must supply a task id to delete.");
     process.exit(0);
   }
+  //Doing a query first to check the number of rows to be sure we aren't referencing a non-existant row
+  //I figure there's a better way to do this, maybe checking the result of the UPDATE query itself
   pool.query(countRowsQueryText,[],function(err,res){
     if(err){
       console.log(err);
       process.exit(1);
     };
+    //Delete the row as long as it's in the table
     if(res.rows[0].count >= idToDelete){
       pool.query(deleteQueryText,[idToDelete],function(err,res){
         if(err){
           console.log(err);
           process.exit(1);
         };
+        //After the row has been deleted, recalcualte the id column so it's continuous
         pool.query(alterSequenceQueryText,[],function(err,res){
           if(err){
             console.log(err);
@@ -108,11 +116,14 @@ function deleteTask(idToDelete){
   });
 }
 
+//Mark a task as completed
 function completeTask(idToComplete){
   if(idToComplete == null){
     console.log("Must supply a task id to complete.");
     process.exit(0);
   }
+  //Doing a query first to check the number of rows to be sure we aren't referencing a non-existant row
+  //I figure there's a better way to do this, maybe checking the result of the UPDATE query itself
   pool.query(countRowsQueryText,[],function(err,res){
     if(err){
       console.log(err);

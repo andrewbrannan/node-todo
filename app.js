@@ -1,7 +1,7 @@
 "use strict";
 
 var argv = require('minimist')(process.argv.slice(2));
-const { Pool } = require('pg'); // What's with the { } around Pool?
+const { Pool } = require('pg'); 
 
 const pool = new Pool({
   database: "todo",

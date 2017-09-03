@@ -13,6 +13,7 @@ exports.addTask = function(task){
   return new Promise(function(fulfull,reject){
     if(task == null || task == ""){
       reject(new Error("Task cannot be null or empty"));
+      return;
     }
     pool.query("INSERT INTO list(task,is_completed) VALUES($1,'0')",[task])
       .then(function(res){
@@ -30,11 +31,12 @@ exports.addTask = function(task){
 };
 
 //Mark a task as completed
-//True if task was completed successfully
+//Returns a Promise
 exports.completeTask = function(idToComplete){
   return new Promise(function(fulfill, reject){
     if(idToComplete == null){
       reject(new Error("Must supply a task id to complete."));
+      return;
     };
     pool.query("UPDATE list SET is_completed='true' WHERE id=$1",[idToComplete])
       .then(function(res){
@@ -52,11 +54,12 @@ exports.completeTask = function(idToComplete){
 };
 
 //Deletes a task from the database
-//True if the task was deleted correctly, false if not
+//Returns a Promise
 exports.deleteTask = function(idToDelete){
   return new Promise(function(fulfill, reject){
     if(idToDelete == null){
       reject(new Error("Must supply a task id to delete."));
+      return;
     };
     pool.query("DELETE FROM list WHERE id=$1",[idToDelete])
       .then(function(res){
@@ -73,7 +76,6 @@ exports.deleteTask = function(idToDelete){
   });
 };
 
-//Returns an array of rows in the table
 exports.getAllTasks = function(){
   return new Promise(function (fulfill, reject){
     pool.query("SELECT * FROM list ORDER BY id asc",[],function(err,res){

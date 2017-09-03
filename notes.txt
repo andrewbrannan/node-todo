@@ -1,0 +1,16 @@
+[X] Move the query strings right into their function calls
+[X] Decouple the database calls and the CLI API
+[ ] Use logical numbering on task list
+[x] Switch to using promises
+[ ] Write some tests
+
+the db module should also return promises that so that the application can decide what to
+do on success/failure of adding rows to the database.
+What should I return if there's a user error, for example they try to delete a
+row that doesn't exist?
+
+database calls:
+addTask(task) - task -> string of the text of the task to add
+listTasks() - gets an array of all current tasks and their status
+deleteTask(idToDelete) - deletes the task with the give id
+completeTask(idToComplete) - marks the task as completed

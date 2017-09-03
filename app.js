@@ -1,19 +1,11 @@
 "use strict";
 
 var argv = require('minimist')(process.argv.slice(2));
-const { Pool } = require('pg'); 
+const { Pool } = require('pg');
 
 const pool = new Pool({
   database: "todo",
 });
-
-//SQL Queries - Is there a better way to do this?
-const addQueryText = "INSERT INTO list(task,is_completed) VALUES($1,'0')";
-const listQueryText = "SELECT * FROM list ORDER BY id asc";
-const setCompletedQueryText = "UPDATE list SET is_completed='true' WHERE id=$1";
-const deleteQueryText = "DELETE FROM list WHERE id=$1";
-const alterSequenceQueryText = "ALTER SEQUENCE list_id_seq RESTART WITH 1";
-const updateIdsQueryText = "UPDATE list SET id=nextval('list_id_seq')";
 
 function printHelp(){
   console.log("~~~~~~~~~~TODO HELP~~~~~~~~~~~");
@@ -46,7 +38,7 @@ function addTask(task){
     console.log("Must supply a task name to add.");
     process.exit(0);
   }
-  pool.query(addQueryText,[task],function(err,res){
+  pool.query("INSERT INTO list(task,is_completed) VALUES($1,'0')",[task],function(err,res){
     if(err){
       console.log(err);
       process.exit(1)
@@ -60,7 +52,7 @@ function addTask(task){
 
 //Prints a list of all tasks in the database
 function listTasks(){
-  pool.query(listQueryText,[],function(err,res){
+  pool.query("SELECT * FROM list ORDER BY id asc",[],function(err,res){
     if(err){
       console.log(err);
       process.exit(1);
@@ -79,7 +71,7 @@ function deleteTask(idToDelete){
     console.log("Must supply a task id to delete.");
     process.exit(0);
   }
-  pool.query(deleteQueryText,[idToDelete],function(err,res){
+  pool.query("DELETE FROM list WHERE id=$1",[idToDelete],function(err,res){
     if(err){
       console.log(err);
       process.exit(1);
@@ -88,12 +80,12 @@ function deleteTask(idToDelete){
     if(res.rowCount != 0){
       //After the row has been deleted, recalcualte the id column so it's continuous
       //Would be good to avoid multiple queries on this, I think a postgres transaction would be the right tool
-      pool.query(alterSequenceQueryText,[],function(err,res){
+      pool.query("ALTER SEQUENCE list_id_seq RESTART WITH 1",[],function(err,res){
         if(err){
           console.log(err);
           process.exit(1);
         };
-        pool.query(updateIdsQueryText,[],function(err,res){
+        pool.query("UPDATE list SET id=nextval('list_id_seq')",[],function(err,res){
           if(err){
             console.log(err);
             process.exit(1);
@@ -116,7 +108,7 @@ function completeTask(idToComplete){
     console.log("Must supply a task id to complete.");
     process.exit(0);
   }
-  pool.query(setCompletedQueryText,[idToComplete],function(err,res){
+  pool.query("UPDATE list SET is_completed='true' WHERE id=$1",[idToComplete],function(err,res){
     if(err){
       console.log(err);
       process.exit(1);

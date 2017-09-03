@@ -39,7 +39,13 @@ if(argv._.length == 0){
 switch(argv._[0]){
     case "add":
       const task = argv._[1];
-      db.addTask(task);
+      db.addTask(task)
+        .then(function(){
+          console.log("Added task \"" + task + "\" to list")
+        })
+        .catch(function(err){
+          console.log(err);
+        });
       break;
 
     case "list":
@@ -53,12 +59,24 @@ switch(argv._[0]){
 
     case "delete":
       const idToDelete = argv._[1];
-      db.deleteTask(idToDelete);
+      db.deleteTask(idToDelete)
+        .then(function(){
+          console.log("Deleted task " + idToDelete);
+        })
+        .catch(function(err){
+          console.log(err);
+        });
       break;
 
     case "complete":
       const idToComplete = argv._[1];
-      db.completeTask(idToComplete);
+      db.completeTask(idToComplete)
+        .then(function(){
+          console.log("Set task " + idToComplete + " as completed.");
+        })
+        .catch(function(err){
+          console.log(err);
+        });
       break;
 
     case "help":

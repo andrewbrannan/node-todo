@@ -8,61 +8,69 @@ const pool = new Pool({
 });
 
 //Adds a task to the database
-//Returns true if added successfully, false if not
+//Returns a Promise
 exports.addTask = function(task){
-  if(task == null || task == ""){
-    console.log("Must supply a task name to add.");
-    return;
-  };
-  pool.query("INSERT INTO list(task,is_completed) VALUES($1,'0')",[task])
-    .then(function(res){
-      console.log("Added todo: " + task)
-    })
-    .catch(function(err){
-      console.log(err);
-    });
+  return new Promise(function(fulfull,reject){
+    if(task == null || task == ""){
+      reject(new Error("Task cannot be null or empty"));
+    }
+    pool.query("INSERT INTO list(task,is_completed) VALUES($1,'0')",[task])
+      .then(function(res){
+        if(res.rowCount != 0){
+          fulfull();
+        }
+        else{
+          reject(new Error("Couldn't add task to database"));
+        }
+      })
+      .catch(function(err){
+        reject(err);
+      });
+  });
 };
 
 //Mark a task as completed
 //True if task was completed successfully
 exports.completeTask = function(idToComplete){
-  if(idToComplete == null){
-    console.log("Must supply a task id to complete.");
-    return;
-  };
-  pool.query("UPDATE list SET is_completed='true' WHERE id=$1",[idToComplete])
-    .then(function(res){
-      if(res.rowCount != 0){
-        console.log("Set task " + idToComplete + " as completed.");
-      }
-      else{
-        console.log("No task with id " + idToComplete + " exists, try again.");
-      }
-    })
-    .catch(function(err){
-      console.log(err);
-    });
+  return new Promise(function(fulfill, reject){
+    if(idToComplete == null){
+      reject(new Error("Must supply a task id to complete."));
+    };
+    pool.query("UPDATE list SET is_completed='true' WHERE id=$1",[idToComplete])
+      .then(function(res){
+        if(res.rowCount != 0){
+          fulfill();
+        }
+        else{
+          reject(new Error("No task with id " + idToComplete + " exists, try again."));
+        }
+      })
+      .catch(function(err){
+        reject(err);
+      });
+  })
 };
 
 //Deletes a task from the database
 //True if the task was deleted correctly, false if not
 exports.deleteTask = function(idToDelete){
-  if(idToDelete == null){
-    console.log("Must supply a task id to delete.");
-    return;
-  };
-  pool.query("DELETE FROM list WHERE id=$1",[idToDelete])
-    .then(function(res){
-      if(res.rowCount != 0){
-        console.log("Deleted task " + idToDelete);
-      }
-      else{
-        console.log("No task with id " + idToDelete + " exists, try again.");
-      }
-    })
-    .catch(function(err){
-      console.log(err);
-    });
+  return new Promise(function(fulfill, reject){
+    if(idToDelete == null){
+      reject(new Error("Must supply a task id to delete."));
+    };
+    pool.query("DELETE FROM list WHERE id=$1",[idToDelete])
+      .then(function(res){
+        if(res.rowCount != 0){
+          fulfill();
+        }
+        else{
+          reject(new Error("No task with id " + idToDelete + " exists, try again."));
+        }
+      })
+      .catch(function(err){
+        reject(err);
+      });
+  });
 };
 
 //Returns an array of rows in the table

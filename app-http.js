@@ -39,8 +39,12 @@ app.delete('/tasks/:id', function(req, res){
       res.status(204).end();
     })
     .catch(function(err){
-      // TODO: Should there be more intelligent error handling here? e.g. 404 if no id exists, 500 if the db broke
+      // TODO: Get some feedback on how to handle errors.  This does what I want but feels messy
+      // But maybe it doesn't matter if we try to delete a task that doesn't exist?  But then we're failing silently...
       console.log(err);
+      if(err.code = db.ERROR_CODE_TASK_DOES_NOT_EXIST){
+        res.status(404).end("Task does not exist\n");
+      }
       res.status(500).end();
   });
 });
@@ -53,6 +57,9 @@ app.put('/tasks/complete/:id', function(req, res){
     })
     .catch(function(err){
       console.log(err);
+      if(err.code = db.ERROR_CODE_TASK_DOES_NOT_EXIST){
+        res.status(404).end("Task does not exist\n");
+      }
       res.status(500).end();
   });
 });
@@ -72,7 +79,7 @@ app.get('/tasks', function(req, res){
   });
 });
 
-//Log all the requests to the console
+//Give anything not explicitly routed a 404
 app.use(function(req,res,next){
   res.status(404).end();
 });

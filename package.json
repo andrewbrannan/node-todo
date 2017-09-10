@@ -9,6 +9,9 @@
   "author": "andrew",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.18.0",
+    "express": "^4.15.4",
+    "jsonschema": "^1.2.0",
     "minimist": "^1.2.0",
     "pg": "^7.1.2",
     "promise": "^8.0.1"

@@ -2,7 +2,7 @@
 
 var argv = require('minimist')(process.argv.slice(2));
 
-const db = require('./db/db.js')
+const db = require('./db.js')
 
 function printHelp(){
   console.log("~~~~~~~~~~TODO HELP~~~~~~~~~~~");

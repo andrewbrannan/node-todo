@@ -7,6 +7,10 @@ const pool = new Pool({
   idleTimeoutMillis: 200, // close idle clients after 0.2 seconds
 });
 
+// This seems super ugly, but how else do we handle specific errors?
+const ERROR_CODE_TASK_DOES_NOT_EXIST = 1;
+exports.ERROR_CODE_TASK_DOES_NOT_EXIST = ERROR_CODE_TASK_DOES_NOT_EXIST;
+
 //Adds a task to the database
 //Returns a Promise
 exports.addTask = function(task){
@@ -44,8 +48,9 @@ exports.completeTask = function(idToComplete){
           fulfill();
         }
         else{
-          reject(new Error("No task with id " + idToComplete + " exists, try again."));
-        }
+          var err = new Error("No task with id " + idToDelete + " exists, try again.");
+          err.code = ERROR_CODE_TASK_DOES_NOT_EXIST;
+          reject(err);        }
       })
       .catch(function(err){
         reject(err);
@@ -67,7 +72,9 @@ exports.deleteTask = function(idToDelete){
           fulfill();
         }
         else{
-          reject(new Error("No task with id " + idToDelete + " exists, try again."));
+          var err = new Error("No task with id " + idToDelete + " exists, try again.");
+          err.code = ERROR_CODE_TASK_DOES_NOT_EXIST;
+          reject(err);
         }
       })
       .catch(function(err){

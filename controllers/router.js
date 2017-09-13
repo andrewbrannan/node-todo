@@ -5,6 +5,8 @@ var bodyParser = require('body-parser');
 var router = express.Router();
 
 var jwt = require('jsonwebtoken');
+var jwt_express = require('express-jwt');
+
 
 var list = require('../models/todo-list.js')
 var users = require('../models/users.js')
@@ -14,6 +16,13 @@ var config = require("../config.js")
 //Log all the requests to the console
 router.use(function(req,res,next){
   console.log('New request on: ' + req.path + ' Method: '+  req.method);
+  next();
+});
+
+router.use('/tasks',jwt_express({secret: config.jwtsecret}), function(req,res, next){
+  if(!req.user){
+    return res.sendStatus(401);
+  };
   next();
 });
 
@@ -108,7 +117,7 @@ router.post('/login', function(req, res){
   users.validateUser(data.user_id,data.password)
     .then(function(){
       var token = jwt.sign({ user_id: data.user_id }, config.jwtsecret,  {
-          expiresIn: '2 days'
+          expiresIn: '14 days'
         });
       res.json({
         success: true,

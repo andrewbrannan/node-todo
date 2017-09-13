@@ -61,3 +61,6 @@ CREATE TABLE users (
 );
 
 ALTER TABLE users OWNER TO andrewbrannan;
+
+-- Add an admin user with password 'dingleberry' (hashed w/ bcrypt)
+INSERT INTO users(user_id,hash,is_admin) VALUES('andrew.brannan@gmail.com','$2a$10$GBHfwYXGrzvZgr/RxQZCwOOxTPw66.0mFDvc5ude6W1lhqE5jqopm',true);

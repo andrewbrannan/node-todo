@@ -29,3 +29,23 @@ exports.validateUser = function(user_id, password){
       });
   });
 };
+
+exports.createUser = function(user_id, password){
+  bcrypt.hash(password, SALT_ROUNDS)
+    .then(function(hash){
+      return new Promise(function(fulfill, reject){
+        pool.query("INSERT INTO users(user_id,hash,is_admin) VALUES($1, $2, false)", [user_id, hash])
+          .then(function(res){
+            if(res.rowCount != 0){
+              fulfill();
+            }
+            else{
+              reject(new Error("Error adding user to database"));
+            }
+          })
+          .catch(function(err){
+            reject(err);
+          });
+      });
+    });
+}

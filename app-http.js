@@ -3,7 +3,7 @@
 var express = require('express');
 var app = new express();
 
-var router = require('./routers/router.js').router;
+var router = require('./controllers/router.js').router;
 
 app.use('/',router);
 

@@ -4,7 +4,7 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var router = express.Router();
 
-var db = require('../db.js')
+var db = require('../models/todo-list.js')
 //Log all the requests to the console
 router.use(function(req,res,next){
   console.log('New request on: ' + req.path + ' Method: '+  req.method);

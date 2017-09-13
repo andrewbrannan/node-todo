@@ -14,19 +14,9 @@ SET check_function_bodies = false;
 SET client_min_messages = warning;
 SET row_security = off;
 
---
--- Name: plpgsql; Type: EXTENSION; Schema: -; Owner:
---
-
 CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 
-
---
--- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner:
---
-
 COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
-
 
 SET search_path = public, pg_catalog;
 
@@ -34,22 +24,16 @@ SET default_tablespace = '';
 
 SET default_with_oids = false;
 
---
--- Name: list; Type: TABLE; Schema: public; Owner: andrewbrannan
---
+-- Table holding all todo items
 
 CREATE TABLE list (
     id integer NOT NULL,
     task character varying(256),
-    is_completed boolean
+    is_completed boolean,
+    user_id character varying(256)
 );
 
-
 ALTER TABLE list OWNER TO andrewbrannan;
-
---
--- Name: list_id_seq; Type: SEQUENCE; Schema: public; Owner: andrewbrannan
---
 
 CREATE SEQUENCE list_id_seq
     START WITH 1
@@ -58,38 +42,21 @@ CREATE SEQUENCE list_id_seq
     NO MAXVALUE
     CACHE 1;
 
-
 ALTER TABLE list_id_seq OWNER TO andrewbrannan;
-
---
--- Name: list_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: andrewbrannan
---
 
 ALTER SEQUENCE list_id_seq OWNED BY list.id;
 
-
---
--- Name: list id; Type: DEFAULT; Schema: public; Owner: andrewbrannan
---
-
 ALTER TABLE ONLY list ALTER COLUMN id SET DEFAULT nextval('list_id_seq'::regclass);
-
-
---
--- Data for Name: list; Type: TABLE DATA; Schema: public; Owner: andrewbrannan
---
 
 COPY list (id, task, is_completed) FROM stdin;
 \.
 
-
---
--- Name: list_id_seq; Type: SEQUENCE SET; Schema: public; Owner: andrewbrannan
---
-
 SELECT pg_catalog.setval('list_id_seq', 0, true);
 
+-- Table holding all users
+CREATE TABLE users (
+    user_id character varying(256),
+    hash character varying(256)
+);
 
---
--- PostgreSQL database dump complete
---
+ALTER TABLE users OWNER TO andrewbrannan;

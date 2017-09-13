@@ -24,7 +24,10 @@ router.post('/tasks', function(req, res){
   var data = req.body;
   //Check that request contains the task key
   if(!data.task){
-    res.status(400).end("No task to add\n");
+    res.json({
+      message:"No task to add"
+    });
+    res.status(400).end();
   };
 
   list.addTask(data.task)
@@ -49,7 +52,10 @@ router.delete('/tasks/:id', function(req, res){
       // But maybe it doesn't matter if we try to delete a task that doesn't exist?  But then we're failing silently...
       console.log(err);
       if(err.code = list.ERROR_CODE_TASK_DOES_NOT_EXIST){
-        res.status(404).end("Task does not exist\n");
+        res.json({
+          message:"Task does not exist"
+        });
+        res.status(404).end();
       }
       res.status(500).end();
   });
@@ -64,7 +70,10 @@ router.put('/tasks/complete/:id', function(req, res){
     .catch(function(err){
       console.log(err);
       if(err.code = list.ERROR_CODE_TASK_DOES_NOT_EXIST){
-        res.status(404).end("Task does not exist\n");
+        res.json({
+          message:"Task does not exist"
+        });
+        res.status(404).end();
       }
       res.status(500).end();
   });
@@ -90,7 +99,10 @@ router.post('/login', function(req, res){
   var data = req.body;
 
   if(!data.user_id || ! data.password){
-    res.status(400).end("Username and password must be specified\n");
+    res.json({
+      message:"Username and password must be specified"
+    });
+    res.status(400).end();
   };
 
   users.validateUser(data.user_id,data.password)

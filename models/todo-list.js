@@ -1,11 +1,6 @@
 "use strict";
 
-const { Pool } = require('pg');
-
-const pool = new Pool({
-  database: "todo",
-  idleTimeoutMillis: 200, // close idle clients after 0.2 seconds
-});
+const pool = require('./pgpool.js')
 
 // This seems super ugly, but how else do we handle specific errors?
 const ERROR_CODE_TASK_DOES_NOT_EXIST = 1;

@@ -55,9 +55,9 @@ SELECT pg_catalog.setval('list_id_seq', 0, true);
 
 -- Table holding all users
 CREATE TABLE users (
-    user_id character varying(256),
+    user_id character varying(256) UNIQUE,
     hash character varying(256),
-    is_admin boolean
+    is_admin boolean DEFAULT False
 );
 
 ALTER TABLE users OWNER TO andrewbrannan;

@@ -39,7 +39,7 @@ router.post('/tasks', function(req, res){
     res.status(400).end();
   };
 
-  list.addTask(data.task)
+  list.addTask(data.task,req.user.user_id)
     .then(function(){
       console.log("Added task \"" + data.task + "\" to list")
       res.status(204).end();
@@ -51,7 +51,7 @@ router.post('/tasks', function(req, res){
 });
 
 router.delete('/tasks/:id', function(req, res){
-  list.deleteTask(req.params.id)
+  list.deleteTask(req.params.id, req.user.user_id)
     .then(function(){
       console.log("Deleted task " + req.params.id);
       res.status(204).end();
@@ -71,7 +71,7 @@ router.delete('/tasks/:id', function(req, res){
 });
 
 router.put('/tasks/complete/:id', function(req, res){
-  list.completeTask(req.params.id)
+  list.completeTask(req.params.id, req.user.user_id)
     .then(function(){
       console.log("Set task " + req.params.id + " as completed.");
       res.status(204).end();
@@ -89,7 +89,7 @@ router.put('/tasks/complete/:id', function(req, res){
 });
 
 router.get('/tasks', function(req, res){
-  list.getAllTasks()
+  list.getAllTasks(req.user.user_id)
     .then(function(rows){
       //TODO: Should this respond with just an array or should it have a tasks key with value the array?
       var data = {};
@@ -101,6 +101,26 @@ router.get('/tasks', function(req, res){
       console.log(err);
       res.status(500).end();
   });
+});
+
+router.post('/tasks/createuser',function(req,res){
+  var data = req.body;
+
+  if(!data.user_id || ! data.password){
+    res.json({
+      message:"Username and password must be specified"
+    });
+    res.status(400).end();
+  };
+
+  users.createUser(data.user_id, data.password)
+    .then(function(){
+      res.status(204).end();
+    })
+    .catch(function(err){
+      console.log(err);
+      res.status(400).end();
+    });
 });
 
 router.post('/login', function(req, res){

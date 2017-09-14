@@ -30,6 +30,7 @@ exports.validateUser = function(user_id, password){
   });
 };
 
+// This is wrong, need to re-jig
 exports.createUser = function(user_id, password){
   bcrypt.hash(password, SALT_ROUNDS)
     .then(function(hash){
@@ -48,4 +49,19 @@ exports.createUser = function(user_id, password){
           });
       });
     });
-}
+};
+
+exports.isUserAdmin = function(user_id){
+  return new Promise(function(fulfull,reject){
+    pool.query("SELECT is_admin FROM users WHERE user_id=$1",[user_id])
+      .then(function(res){
+        if(res.rowCount != 0){
+          fulfull(res.is_admin);
+        }
+        reject(new Error("User does not exist"));
+      })
+      .catch(function(err){
+        reject(err);
+      });
+  });
+};

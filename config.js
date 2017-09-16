@@ -4,6 +4,6 @@
 
 var config = {};
 
-config.jwtsecret = 'thequickbrownfoxjumpedoverthelazydog'
+config.jwtsecret = process.env.JWTSECRET || 'thequickbrownfoxjumpedoverthelazydog'
 
 module.exports=config

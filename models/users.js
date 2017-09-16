@@ -30,25 +30,23 @@ exports.validateUser = function(user_id, password){
   });
 };
 
-// This is wrong, need to re-jig
 exports.createUser = function(user_id, password){
-  bcrypt.hash(password, SALT_ROUNDS)
-    .then(function(hash){
-      return new Promise(function(fulfill, reject){
-        pool.query("INSERT INTO users(user_id,hash,is_admin) VALUES($1, $2, false)", [user_id, hash])
-          .then(function(res){
-            if(res.rowCount != 0){
-              fulfill();
-            }
-            else{
-              reject(new Error("Error adding user to database"));
-            }
-          })
-          .catch(function(err){
-            reject(err);
-          });
+  return new Promise(function(fulfill, reject){
+    bcrypt.hash(password, SALT_ROUNDS)
+      .then(function(hash){
+        return pool.query("INSERT INTO users(user_id,hash,is_admin) VALUES($1, $2, false)", [user_id, hash])
+      })
+      .then(function(res){
+        if(res.rowCount != 0){
+          fulfill();
+        }
+        reject(new Error("Error adding user to the database"))
+      })
+      .catch(function(err){
+        console.log(err)
+        reject(err);
       });
-    });
+  });
 };
 
 exports.isUserAdmin = function(user_id){
@@ -56,7 +54,7 @@ exports.isUserAdmin = function(user_id){
     pool.query("SELECT is_admin FROM users WHERE user_id=$1",[user_id])
       .then(function(res){
         if(res.rowCount != 0){
-          fulfull(res.is_admin);
+          fulfull(res.rows[0].is_admin);
         }
         reject(new Error("User does not exist"));
       })

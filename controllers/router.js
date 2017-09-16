@@ -113,7 +113,18 @@ router.post('/tasks/createuser',function(req,res){
     res.status(400).end();
   };
 
-  users.createUser(data.user_id, data.password)
+  users.isUserAdmin(req.user.user_id)
+    .then(function(is_admin){
+      if(is_admin === true){
+        return users.createUser(data.user_id, data.password);
+      }
+      else{
+        res.status(401).json({
+          message:"Must be admin to create a new user"
+        });
+        throw new Error("Must be admin to create a new user");
+      }
+    })
     .then(function(){
       res.status(204).end();
     })

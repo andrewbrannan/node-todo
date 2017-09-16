@@ -16,8 +16,6 @@ SET row_security = off;
 
 CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 
-COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
-
 SET search_path = public, pg_catalog;
 
 SET default_tablespace = '';
@@ -33,7 +31,7 @@ CREATE TABLE list (
     user_id character varying(256)
 );
 
-ALTER TABLE list OWNER TO andrewbrannan;
+ALTER TABLE list OWNER TO :db_user;
 
 CREATE SEQUENCE list_id_seq
     START WITH 1
@@ -42,7 +40,7 @@ CREATE SEQUENCE list_id_seq
     NO MAXVALUE
     CACHE 1;
 
-ALTER TABLE list_id_seq OWNER TO andrewbrannan;
+ALTER TABLE list_id_seq OWNER TO :db_user;
 
 ALTER SEQUENCE list_id_seq OWNED BY list.id;
 
@@ -51,7 +49,7 @@ ALTER TABLE ONLY list ALTER COLUMN id SET DEFAULT nextval('list_id_seq'::regclas
 COPY list (id, task, is_completed) FROM stdin;
 \.
 
-SELECT pg_catalog.setval('list_id_seq', 0, true);
+SELECT pg_catalog.setval('list_id_seq', 1, true);
 
 -- Table holding all users
 CREATE TABLE users (
@@ -60,7 +58,6 @@ CREATE TABLE users (
     is_admin boolean DEFAULT False
 );
 
-ALTER TABLE users OWNER TO andrewbrannan;
+ALTER TABLE users OWNER TO :db_user;
 
--- Add an admin user with password 'dingleberry' (hashed w/ bcrypt)
 INSERT INTO users(user_id,hash,is_admin) VALUES('andrew.brannan@gmail.com','$2a$10$GBHfwYXGrzvZgr/RxQZCwOOxTPw66.0mFDvc5ude6W1lhqE5jqopm',true);
